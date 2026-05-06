@@ -2,42 +2,519 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Пример</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GameHub | Платформа для игр</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease;
         }
-        h1 {
-            color: #333;
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0f1e 0%, #0c1225 100%);
+            color: #eef2ff;
+            min-height: 100vh;
+            line-height: 1.5;
         }
-        p {
-            color: #555;
+
+        /* Светлая тема */
+        body.light {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e9edf5 100%);
+            color: #1f2937;
         }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
+
+        body.light .card, body.light .glass-card, body.light .admin-panel, body.light .game-card, body.light .review-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #1f2937;
+        }
+        body.light .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid #ddd;
+        }
+        body.light .btn-primary {
+            background: #5b21b6;
             color: white;
-            text-decoration: none;
-            border-radius: 5px;
         }
-        .button:hover {
-            background-color: #0056b3;
+        body.light .stat-card {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* анимации */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in {
+            animation: fadeSlideUp 0.6s ease forwards;
+        }
+
+        /* navbar */
+        .navbar {
+            background: rgba(10, 15, 30, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a855f7, #06b6d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            color: inherit;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-links a:hover {
+            color: #a855f7;
+        }
+        .theme-toggle {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 60px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            color: inherit;
+        }
+
+        /* кнопки */
+        .btn-primary {
+            background: linear-gradient(95deg, #7c3aed, #0891b2);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+            transition: all 0.25s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(124, 58, 237, 0.5);
+            background: linear-gradient(95deg, #8b5cf6, #0ea5e9);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* карточки */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .glass-card, .game-card, .review-card {
+            background: rgba(20, 25, 45, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.2s;
+        }
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 28px;
+            margin: 30px 0;
+        }
+        .game-card {
+            cursor: pointer;
+            text-align: center;
+        }
+        .game-card:hover {
+            transform: scale(1.02);
+            border-color: #a855f7;
+        }
+        .rating i {
+            color: #fbbf24;
+        }
+        .search-sort {
+            display: flex;
+            gap: 16px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        input, select, textarea {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 16px;
+            border-radius: 40px;
+            color: inherit;
+            font-family: inherit;
+        }
+        .admin-panel {
+            background: rgba(0,0,0,0.6);
+            border-radius: 32px;
+            padding: 24px;
+            margin: 40px 0;
+        }
+        .stats-grid {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .stat-card {
+            background: #111827;
+            border-radius: 24px;
+            padding: 20px;
+            flex: 1;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .review-list {
+            margin-top: 30px;
+        }
+        .hidden {
+            display: none;
+        }
+        .active-tab {
+            border-bottom: 2px solid #a855f7;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 60px;
+        }
+        @media (max-width: 768px) {
+            .nav-flex {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Добро пожаловать!</h1>
-    <p>Это пример полностью самостоятельного файла HTML.</p>
-    <a href="#" class="button">Кнопка</a>
-    <script>
-        document.querySelector('.button').addEventListener('click', function() {
-            alert('Кнопка нажата!');
+
+<div class="navbar">
+    <div class="container nav-flex">
+        <div class="logo"><i class="fas fa-gamepad"></i> GameHub</div>
+        <div class="nav-links">
+            <a data-page="home">Главная</a>
+            <a data-page="games">Игры</a>
+            <a data-page="profile">Профиль</a>
+            <a data-page="contacts">Контакты</a>
+            <a data-page="admin" id="adminLink">⚡ Админ</a>
+            <button class="theme-toggle" id="themeSwitcher"><i class="fas fa-moon"></i> Тема</button>
+        </div>
+    </div>
+</div>
+
+<main class="container" id="appContent">
+    <!-- динамические страницы -->
+</main>
+
+<footer>
+    <p>© 2025 GameHub — Играй c нами. С любовью и фиолетовыми градиентами.</p>
+</footer>
+
+<script>
+    // ------------------- ДАННЫЕ ---------------------
+    let games = [
+        { id: 1, name: "Cyber赛车 2078", genre: "Гонки", rating: 4.8, hoursPlayed: 1240, icon: "fa-car", popular: true },
+        { id: 2, name: "Mystic Legends", genre: "RPG", rating: 4.9, hoursPlayed: 980, icon: "fa-dragon", popular: true },
+        { id: 3, name: "Pixel Strike", genre: "Шутер", rating: 4.5, hoursPlayed: 2340, icon: "fa-crosshairs", popular: true },
+        { id: 4, name: "Farm Adventure", genre: "Симуляция", rating: 4.2, hoursPlayed: 450, icon: "fa-tractor", popular: false },
+        { id: 5, name: "Space Rogue", genre: "Roguelike", rating: 4.7, hoursPlayed: 1120, icon: "fa-rocket", popular: true },
+        { id: 6, name: "Chess Master", genre: "Стратегия", rating: 4.4, hoursPlayed: 310, icon: "fa-chess", popular: false }
+    ];
+
+    let users = JSON.parse(localStorage.getItem("gamehub_users")) || [];
+    let currentUser = JSON.parse(localStorage.getItem("gamehub_current")) || null;
+
+    let reviews = JSON.parse(localStorage.getItem("gamehub_reviews")) || [
+        { id: 1, gameId: 2, user: "Alex", text: "Невероятная графика и сюжет!", rating: 5, date: "2025-02-10" },
+        { id: 2, gameId: 1, user: "Mira", text: "Отличные гонки, адреналин", rating: 4, date: "2025-02-12" }
+    ];
+
+    // статистика для онлайна (имитация)
+    let onlineUsers = Math.floor(Math.random() * (420 - 120 + 1) + 120);
+    setInterval(() => {
+        onlineUsers = Math.floor(Math.random() * (480 - 140 + 1) + 140);
+        if(document.getElementById("onlineCount")) document.getElementById("onlineCount").innerText = onlineUsers;
+        if(document.getElementById("adminOnline")) document.getElementById("adminOnline").innerText = onlineUsers;
+    }, 15000);
+
+    // вспомогательные функции
+    function saveAll() {
+        localStorage.setItem("gamehub_users", JSON.stringify(users));
+        localStorage.setItem("gamehub_current", JSON.stringify(currentUser));
+        localStorage.setItem("gamehub_reviews", JSON.stringify(reviews));
+    }
+
+    function registerUser(username, password) {
+        if(users.find(u => u.username === username)) return false;
+        users.push({ username, password, stats: { totalPlayTime: 0, gamesPlayed: [] } });
+        saveAll();
+        return true;
+    }
+
+    function loginUser(username, password) {
+        let user = users.find(u => u.username === username && u.password === password);
+        if(user) {
+            currentUser = { username: user.username, stats: user.stats };
+            localStorage.setItem("gamehub_current", JSON.stringify(currentUser));
+            saveAll();
+            return true;
+        }
+        return false;
+    }
+    function logout() { currentUser = null; localStorage.removeItem("gamehub_current"); saveAll(); renderPage(getCurrentPage()); }
+
+    function addReview(gameId, text, rating) {
+        if(!currentUser) return alert("Войдите чтобы оставить отзыв");
+        let newId = Date.now();
+        reviews.push({ id: newId, gameId: parseInt(gameId), user: currentUser.username, text, rating: parseInt(rating), date: new Date().toISOString().slice(0,10) });
+        saveAll();
+        alert("Отзыв добавлен!");
+        renderPage("games");
+    }
+
+    function getTotalUserTime(username) {
+        let user = users.find(u => u.username === username);
+        return user ? user.stats.totalPlayTime : 0;
+    }
+
+    // популярные игры
+    function getMostPopularGames() { return [...games].sort((a,b)=> b.hoursPlayed - a.hoursPlayed).slice(0,3); }
+
+    // Рендер главной
+    function renderHome() {
+        const popularGames = getMostPopularGames();
+        return `
+            <div class="hero animate-in">
+                <h1 style="font-size:3rem;">Добро пожаловать в <span style="background:linear-gradient(135deg,#a855f7,#06b6d4); -webkit-background-clip:text; background-clip:text; color:transparent;">GameHub</span></h1>
+                <p style="font-size:1.2rem; margin:20px 0;">Платформа нового поколения — играй, соревнуйся, побеждай.</p>
+                ${!currentUser ? `<div><button class="btn-primary" id="showRegBtn"><i class="fas fa-user-plus"></i> Регистрация</button>
+                <button class="btn-secondary" id="showLoginBtn" style="margin-left:15px;">Вход</button></div>` : `<p>Привет, ${currentUser.username} ! <button class="btn-secondary" id="logoutBtn">Выйти</button></p>`}
+            </div>
+            <div class="glass-card" style="margin:30px 0;">
+                <h2><i class="fas fa-fire"></i> Топ популярных игр</h2>
+                <div class="game-grid" style="grid-template-columns:repeat(auto-fill, minmax(220px,1fr));">
+                    ${popularGames.map(g => `<div class="game-card" data-game-id="${g.id}"><i class="fas ${g.icon} fa-2x"></i><h3>${g.name}</h3><p>⭐ ${g.rating} | ${g.hoursPlayed} часов всего</p></div>`).join('')}
+                </div>
+            </div>
+            <div class="glass-card">
+                <h3>Почему GameHub?</h3>
+                <p>🎮 100+ игр • 💬 Отзывы • 📊 Аналитика • 🌙 Умная тема • 🚀 Скорость </p>
+                <button class="btn-primary" id="exploreGames">Исследовать игры →</button>
+            </div>
+            <div id="authModal" style="position:fixed; top:30%; left:50%; transform:translate(-50%,-30%); background:rgba(0,0,0,0.9); padding:30px; border-radius:32px; display:none; z-index:1000; min-width:280px;"></div>
+        `;
+    }
+    // Каталог
+    function renderGamesPage(searchTerm="", genreFilter="") {
+        let filtered = games.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase()) && (genreFilter === "" || g.genre === genreFilter));
+        const genres = [...new Set(games.map(g=>g.genre))];
+        return `
+            <div class="animate-in">
+                <h1><i class="fas fa-store"></i> Игровой каталог</h1>
+                <div class="search-sort">
+                    <input type="text" id="searchInput" placeholder="Поиск игры..." value="${searchTerm}" style="flex:2;">
+                    <select id="genreSelect"><option value="">Все жанры</option>${genres.map(g=>`<option value="${g}" ${genreFilter===g ? 'selected' : ''}>${g}</option>`).join('')}</select>
+                    <button class="btn-primary" id="applyFilterBtn">Фильтр</button>
+                </div>
+                <div class="game-grid" id="gamesGrid">
+                    ${filtered.map(g => `
+                        <div class="game-card" data-game-id="${g.id}">
+                            <i class="fas ${g.icon} fa-3x"></i>
+                            <h3>${g.name}</h3>
+                            <div class="rating">⭐ ${g.rating} (${g.hoursPlayed} игр.часов)</div>
+                            <button class="gameDetailBtn btn-secondary" data-id="${g.id}">Подробнее & Отзывы</button>
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="gameDetailModal" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1e1a2f; border-radius:32px; padding:25px; width:90%; max-width:500px; display:none; z-index:1001; box-shadow:0 20px 40px rgba(0,0,0,0.5);"></div>
+            </div>
+        `;
+    }
+    // Профиль
+    function renderProfile() {
+        if(!currentUser) return `<div class="glass-card"><h2>Войдите в аккаунт</h2><button class="btn-primary" id="forceLoginBtn">Войти / Регистрация</button></div>`;
+        let total = getTotalUserTime(currentUser.username);
+        return `
+            <div class="glass-card animate-in">
+                <h2><i class="fas fa-user-astronaut"></i> Личный кабинет: ${currentUser.username}</h2>
+                <p>📊 Ваша статистика: Общее время в играх: ${total} мин (~${Math.floor(total/60)} ч)</p>
+                <p>🏆 Игр в библиотеке: ${currentUser.stats?.gamesPlayed?.length || 0}</p>
+                <button class="btn-secondary" id="logoutProfileBtn">Выйти</button>
+            </div>
+        `;
+    }
+    // Контакты
+    function renderContacts() {
+        return `
+            <div class="glass-card animate-in">
+                <h2>Связь с нами</h2>
+                <form id="contactForm">
+                    <div class="form-group"><input type="text" placeholder="Ваше имя" required id="contactName"></div>
+                    <div class="form-group"><input type="email" placeholder="Email" required id="contactEmail"></div>
+                    <div class="form-group"><textarea rows="3" placeholder="Сообщение" required id="contactMsg"></textarea></div>
+                    <button type="submit" class="btn-primary">Отправить сообщение</button>
+                </form>
+                <p><i class="fas fa-envelope"></i> support@gamehub.com | <i class="fab fa-discord"></i> discord.gg/gamehub</p>
+            </div>
+        `;
+    }
+    // Админ панель
+    function renderAdmin() {
+        const popularGames = getMostPopularGames();
+        const totalUsers = users.length;
+        const avgRating = (reviews.reduce((acc, r) => acc + r.rating, 0) / (reviews.length || 1)).toFixed(1);
+        return `
+            <div class="admin-panel animate-in">
+                <h2><i class="fas fa-chart-line"></i> Аналитика GameHub</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><i class="fas fa-users"></i><h3>👥 Онлайн</h3><p id="adminOnline">${onlineUsers}</p></div>
+                    <div class="stat-card"><i class="fas fa-trophy"></i><h3>🎮 Популярная игра</h3><p>${popularGames[0]?.name || '—'}</p></div>
+                    <div class="stat-card"><i class="fas fa-clock"></i><h3>Среднее время (топ-игрок)</h3><p>${Math.max(...users.map(u=>u.stats.totalPlayTime),0)} мин</p></div>
+                    <div class="stat-card"><i class="fas fa-star"></i><h3>Средний рейтинг</h3><p>${avgRating} ⭐</p></div>
+                </div>
+                <div><h3>🏆 Рейтинг игр по популярности (часы)</h3><ul>${games.sort((a,b)=>b.hoursPlayed-a.hoursPlayed).slice(0,5).map(g=>`<li>${g.name} — ${g.hoursPlayed} ч</li>`).join('')}</ul></div>
+                <div><h3>👤 Топ пользователей по времени</h3><ul>${users.sort((a,b)=>b.stats.totalPlayTime - a.stats.totalPlayTime).slice(0,5).map(u=>`<li>${u.username} : ${u.stats.totalPlayTime} мин</li>`).join('') || '<li>Нет данных</li>'}</ul></div>
+                <button class="btn-secondary" id="resetDemoBtn" style="margin-top:15px;"><i class="fas fa-database"></i> Сброс демо-данных (добавить users)</button>
+            </div>
+        `;
+    }
+
+    let currentPage = "home";
+    function getCurrentPage() { return currentPage; }
+    async function renderPage(page) {
+        currentPage = page;
+        let html = "";
+        if(page === "home") html = renderHome();
+        else if(page === "games") html = renderGamesPage("", "");
+        else if(page === "profile") html = renderProfile();
+        else if(page === "contacts") html = renderContacts();
+        else if(page === "admin") html = renderAdmin();
+        document.getElementById("appContent").innerHTML = html;
+        attachPageEvents(page);
+        if(page === "games") attachGamesEvents();
+        if(page === "home") attachHomeEvents();
+        if(page === "admin") attachAdminEvents();
+        if(page === "profile") attachProfileEvents();
+        if(page === "contacts") attachContactEvents();
+    }
+
+    function attachHomeEvents() {
+        document.getElementById("showRegBtn")?.addEventListener("click", () => showAuthModal("reg"));
+        document.getElementById("showLoginBtn")?.addEventListener("click", () => showAuthModal("login"));
+        document.getElementById("exploreGames")?.addEventListener("click", () => renderPage("games"));
+        document.getElementById("logoutBtn")?.addEventListener("click", () => { logout(); renderPage("home"); });
+    }
+    function showAuthModal(type) {
+        const modal = document.getElementById("authModal");
+        modal.style.display = "block";
+        modal.innerHTML = type === "reg" ? `<h3>Регистрация</h3><input id="regName" placeholder="Логин"><input id="regPass" type="password" placeholder="Пароль"><button id="doReg">Создать</button><button id="closeModal">Закрыть</button>`
+            : `<h3>Вход</h3><input id="loginName" placeholder="Логин"><input id="loginPass" type="password" placeholder="Пароль"><button id="doLogin">Войти</button><button id="closeModal">Закрыть</button>`;
+        document.getElementById("closeModal")?.addEventListener("click", ()=> modal.style.display="none");
+        if(type === "reg") document.getElementById("doReg")?.addEventListener("click", ()=>{
+            let name = document.getElementById("regName").value, pass = document.getElementById("regPass").value;
+            if(registerUser(name, pass)) { alert("Успех! Войдите"); modal.style.display="none"; renderPage("home"); }
+            else alert("Пользователь существует");
         });
-    </script>
+        if(type === "login") document.getElementById("doLogin")?.addEventListener("click", ()=>{
+            let name = document.getElementById("loginName").value, pass = document.getElementById("loginPass").value;
+            if(loginUser(name, pass)) { alert("Добро пожаловать"); modal.style.display="none"; renderPage("home"); }
+            else alert("Неверные данные");
+        });
+    }
+    function attachGamesEvents() {
+        document.getElementById("applyFilterBtn")?.addEventListener("click", ()=>{
+            let search = document.getElementById("searchInput")?.value || "";
+            let genre = document.getElementById("genreSelect")?.value || "";
+            renderPage("games");
+            setTimeout(()=>{
+                document.getElementById("searchInput").value = search;
+                document.getElementById("genreSelect").value = genre;
+                attachGamesEvents();
+                const grid = document.getElementById("gamesGrid");
+                if(grid){
+                    let filtered = games.filter(g=> g.name.toLowerCase().includes(search.toLowerCase()) && (genre==="" || g.genre === genre));
+                    grid.innerHTML = filtered.map(g => `<div class="game-card" data-game-id="${g.id}"><i class="fas ${g.icon} fa-3x"></i><h3>${g.name}</h3><div>⭐ ${g.rating}</div><button class="gameDetailBtn btn-secondary" data-id="${g.id}">Отзывы</button></div>`).join('');
+                    document.querySelectorAll(".gameDetailBtn").forEach(btn=> btn.addEventListener("click", (e)=>{
+                        let gameId = btn.getAttribute("data-id");
+                        showGameDetail(gameId);
+                    }));
+                }
+            },10);
+        });
+        document.querySelectorAll(".gameDetailBtn").forEach(btn=> btn.addEventListener("click", (e)=>{
+            let gameId = btn.getAttribute("data-id");
+            showGameDetail(gameId);
+        }));
+    }
+    function showGameDetail(gameId) {
+        const game = games.find(g=> g.id == gameId);
+        const gameReviews = reviews.filter(r=> r.gameId == gameId);
+        const modalDiv = document.getElementById("gameDetailModal");
+        modalDiv.innerHTML = `<h3>${game.name}</h3><p>Рейтинг: ${game.rating} ⭐ | Жанр: ${game.genre}</p><h4>Отзывы:</h4><ul>${gameReviews.map(r=>`<li><b>${r.user}</b> (${r.rating}⭐) ${r.text} <em>${r.date}</em></li>`).join('') || "<li>Пока нет отзывов, будьте первым!</li>"}</ul><textarea id="reviewText" placeholder="Ваш отзыв..."></textarea><select id="reviewRating"><option>5</option><option>4</option><option>3</option></select><button id="submitReviewBtn">Оставить отзыв</button><button id="closeDetailModal">Закрыть</button>`;
+        modalDiv.style.display = "block";
+        document.getElementById("closeDetailModal")?.addEventListener("click", ()=> modalDiv.style.display="none");
+        document.getElementById("submitReviewBtn")?.addEventListener("click", ()=>{
+            let txt = document.getElementById("reviewText").value;
+            let rt = document.getElementById("reviewRating").value;
+            if(txt.trim()){ addReview(gameId, txt, rt); modalDiv.style.display="none";}
+            else alert("Напишите отзыв");
+        });
+    }
+    function attachProfileEvents(){ document.getElementById("logoutProfileBtn")?.addEventListener("click",()=>{ logout(); renderPage("home");}); document.getElementById("forceLoginBtn")?.addEventListener("click",()=>renderPage("home"));}
+    function attachContactEvents(){ document.getElementById("contactForm")?.addEventListener("submit",(e)=>{ e.preventDefault(); alert("Спасибо! Мы свяжемся."); e.target.reset(); });}
+    function attachAdminEvents(){ document.getElementById("resetDemoBtn")?.addEventListener("click",()=>{ if(!users.find(u=>u.username==="DemoUser")) registerUser("DemoUser","123"); if(!users.find(u=>u.username==="GamerPro")) registerUser("GamerPro","123"); let demoUser = users.find(u=>u.username==="DemoUser"); if(demoUser) demoUser.stats.totalPlayTime = 345; if(users.find(u=>u.username==="GamerPro")) users.find(u=>u.username==="GamerPro").stats.totalPlayTime = 860; saveAll(); alert("Демо-пользователи добавлены, статистика обновлена"); renderPage("admin"); }); }
+    
+    document.querySelectorAll("[data-page]").forEach(link => {
+        link.addEventListener("click", (e) => { e.preventDefault(); renderPage(link.getAttribute("data-page")); });
+    });
+    document.getElementById("themeSwitcher").addEventListener("click", ()=>{
+        document.body.classList.toggle("light");
+    });
+    renderPage("home");
+</script>
 </body>
 </html>
